@@ -38,7 +38,7 @@ class MinHeap {
         if (this.#length > 0) {
             output = this.#heap[0];
 
-            // logic to swap stuff
+            this.#heap[0] = null;
         }
 
         return output;
