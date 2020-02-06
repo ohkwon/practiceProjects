@@ -60,5 +60,6 @@ test.add(10);
 test.add(-1);
 test.add(4);
 test.add(23);
+test.add(-4);
 
 test.show();
