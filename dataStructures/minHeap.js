@@ -34,20 +34,46 @@ class MinHeap {
     // 
     //************************************************************************
     extractMin() {
-        var output = false;
-        if (this.#length > 0) {
-            output = this.#heap[0];
+        return this.delete(0);
+    }
+    //************************************************************************
+    // 
+    //************************************************************************
+    heapify(index) {
+        var newIndex = index;
+        // var str      = "index: " + index;
 
-            this.#heap[0] = null;
+        if (typeof this.#heap[this.getLeft(index)] !== "undefined" && this.#heap[index] === null || this.#heap[this.getLeft(index)] < this.#heap[index]) {
+            newIndex = this.getLeft(index);
+            // str += "-L>" + newIndex;
         }
 
-        return output;
+        if (typeof this.#heap[this.getRight(index)] !== "undefined" && this.#heap[newIndex] === null || this.#heap[this.getRight(index)] < this.#heap[newIndex]) {
+            newIndex = this.getRight(index);
+            // str += "-R>" + newIndex;
+        }
+
+        // console.log(str);
+
+        if (newIndex !== index) {
+            this.swap(index, newIndex);
+            this.heapify(newIndex);
+        } else {
+            this.#heap.splice(index, 1);
+        }
     }
     //************************************************************************
     // 
     //************************************************************************
     delete(index) {
+        var output = false;
+        if (this.#length > index) {
+            output            = this.#heap[index];
+            this.#heap[index] = null;
+            this.heapify(index);
+        }
 
+        return output;
     }
     //************************************************************************
     // 
@@ -71,13 +97,34 @@ class MinHeap {
     // 
     //************************************************************************
 	show() {
-        var output = "[";
+        var rows = Math.floor(Math.log(this.#length) / Math.log(2));
+        var sp = " ";
+        var str = "";
+        var newRow = true;
+        var prevRow = 0;
 
-		for (var i = 0; i < this.#heap.length; i++) {
-            output += i + ": " + this.#heap[i] + ", ";
+        for (var i = 0; i < this.#length; i++) {
+            if (prevRow < Math.floor(Math.log(i + 1) / Math.log(2))) {
+                prevRow = Math.floor(Math.log(i + 1) / Math.log(2));
+                console.log(str);
+                str     = "";
+                newRow  = true;
+                rows--;
+            }
+
+            if (newRow) {
+                str   += sp.repeat(rows * rows * 2);
+                newRow = false;
+            }
+
+            var num = this.#heap[i];
+            num     = num.toString();
+            str    += (num.padEnd(4 - num.length)) + sp.repeat((prevRow + 1) * 2);
         }
 
-        console.log(output + "]");
+        if (str) {
+            console.log(str);
+        }
 	}
     //************************************************************************
     // 
@@ -90,15 +137,18 @@ class MinHeap {
     }
 }
 
+function getRandomInt(max) {
+    return Math.floor(Math.random() * Math.floor(max));
+}
+
 var test = new MinHeap();
-test.add(15);
-test.add(1);
-test.add(10);
-test.add(-1);
-test.add(4);
-test.add(23);
-test.add(-4);
-test.add(-12);
-// testbranch2
+
+for (var i = 0; i < 20; i++) {
+    test.add(getRandomInt(i * 10));
+    // if (i % 5 == 0) {
+    //     test.show();
+    //     console.log(test.extractMin());
+    // }
+}
 
 test.show();
