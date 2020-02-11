@@ -76,6 +76,12 @@ class MinHeap {
         return output;
     }
     //************************************************************************
+    // return sorted array
+    //************************************************************************
+    returnSort() {
+
+    }
+    //************************************************************************
     // 
     //************************************************************************
 	getParent(index) {
@@ -113,13 +119,14 @@ class MinHeap {
             }
 
             if (newRow) {
-                str   += sp.repeat(rows * rows * 2);
+
+                str   += sp.repeat(rows * rows);
                 newRow = false;
             }
 
             var num = this.#heap[i];
             num     = num.toString();
-            str    += (num.padEnd(4 - num.length)) + sp.repeat((prevRow + 1) * 2);
+            str    += (num.padEnd(4 - num.length)) + sp.repeat(Math.pow(3, rows));
         }
 
         if (str) {
