@@ -23,6 +23,9 @@ class MinHeap {
 			parentIndex = this.getParent(newIndex);
 		}
 	}
+    //************************************************************************
+    // 
+    //************************************************************************
     getMin() {
         if (this.#length > 0) {
             return this.#heap[0];
@@ -43,12 +46,12 @@ class MinHeap {
         var newIndex = index;
         // var str      = "index: " + index;
 
-        if (typeof this.#heap[this.getLeft(index)] !== "undefined" && this.#heap[index] === null || this.#heap[this.getLeft(index)] < this.#heap[index]) {
+        if (index < this.#length && this.#heap[this.getLeft(index)] < this.#heap[index]) {
             newIndex = this.getLeft(index);
             // str += "-L>" + newIndex;
         }
 
-        if (typeof this.#heap[this.getRight(index)] !== "undefined" && this.#heap[newIndex] === null || this.#heap[this.getRight(index)] < this.#heap[newIndex]) {
+        if (index < this.#length && this.#heap[this.getRight(index)] < this.#heap[newIndex]) {
             newIndex = this.getRight(index);
             // str += "-R>" + newIndex;
         }
@@ -58,8 +61,6 @@ class MinHeap {
         if (newIndex !== index) {
             this.swap(index, newIndex);
             this.heapify(newIndex);
-        } else {
-            this.#heap.splice(index, 1);
         }
     }
     //************************************************************************
@@ -69,7 +70,9 @@ class MinHeap {
         var output = false;
         if (this.#length > index) {
             output            = this.#heap[index];
-            this.#heap[index] = null;
+            this.#heap[index] = this.#heap[this.#length - 1];
+            this.#heap.splice(this.#length - 1, 1);
+            this.#length--;
             this.heapify(index);
         }
 
@@ -79,7 +82,13 @@ class MinHeap {
     // return sorted array
     //************************************************************************
     returnSort() {
+        var output = [];
 
+        while (this.#length > 0) {
+            output.push(this.extractMin());
+        }
+
+        return output;
     }
     //************************************************************************
     // 
@@ -159,3 +168,4 @@ for (var i = 0; i < 20; i++) {
 }
 
 test.show();
+console.log(test.returnSort());
