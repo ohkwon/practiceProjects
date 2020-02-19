@@ -7,10 +7,10 @@ var canJump = function(nums) {
             return false;
         }
         
-        var biggestI = i + 1;
+        var biggestI = 0;
         
-        for (var i2 = nums[i]; i2 > 1; i2--) {
-            if (i + nums[biggestI] >= target || i + nums[i2] >= target) {
+        for (var i2 = nums[i]; i2 > 0; i2--) {
+            if (i + nums[i + biggestI] >= target || i + nums[i + i2] >= target) {
                 return true;
             }
             
@@ -19,11 +19,11 @@ var canJump = function(nums) {
             }
         }
         
-        if (biggestI + nums[biggestI] <= nums[i]) {
+        if (! biggestI || biggestI + nums[i + biggestI] <= nums[i]) {
             return false;
         }
         
-        i += nums[biggestI];
+        i += biggestI;
     }
     
     if (i >= target) {
@@ -37,3 +37,7 @@ console.log('[2,3,1,1,4] ? ');
 console.log(canJump([2,3,1,1,4]));
 console.log('[3,2,1,0,4] ? ');
 console.log(canJump([3,2,1,0,4]));
+console.log('[1,1,1,0] ? ');
+console.log(canJump([1,1,1,0]));
+console.log('[1,1,0,1] ? ');
+console.log(canJump([1,1,0,1]));
