@@ -12,14 +12,16 @@
  * @return {TreeNode}
  */
 var lowestCommonAncestor = function(root, p, q) {
-    var currentReturn = {'p' : false, 'q' : false};
+    let output = null;
+    var returnVal = recursive(root, p, q, output);
+    return returnVal.output;
+}
 
-    if (! root) { // dead end
+var recursive = function(root, p, q, output) {
+    var currentReturn = {p : false, q : false, output : output};
+
+    if (! root || currentReturn.output) { // dead end
         return currentReturn;
-    }
-
-    if (typeof output === 'undefined') {
-        let output = null;
     }
 
     if (root === p) {
@@ -28,12 +30,27 @@ var lowestCommonAncestor = function(root, p, q) {
         currentReturn.q = true;
     }
 
-    var leftResult = lowestCommonAncestor(root.left, p, q);
-    var rightResult = lowestCommonAncestor(root.right, p, q);
+    var leftResult = lowestCommonAncestor(root.left, p, q, currentReturn.output);
+    currentReturn  = Object.assign({}, currentReturn, leftResult);
+
+    if (! currentReturn.output && currentReturn.p && currentReturn.q) {
+        currentReturn.output = root;
+    }
+
+    if (currentReturn.output) {
+        return currentReturn;
+    }
+
+    var rightResult = lowestCommonAncestor(root.right, p, q, currentReturn.output);
+    currentReturn   = Object.assign({}, currentReturn, leftResult);
+
+    if (! currentReturn.output && currentReturn.p && currentReturn.q) {
+        currentReturn.output = root;
+    }
+
+    if (currentReturn.output) {
+        return currentReturn;
+    }
 
     return currentReturn;
-    // compare if match to either
-    // recursive left
-    // recursive right
-    // if both recursive calls return parental map for both, we found our thing;
 }
