@@ -53,6 +53,3 @@ var productExceptSelf = function(nums) {
 
     return output;
 };
-
-const test = [1,2,3,4];
-console.log(productExceptSelf(test));
