@@ -21,18 +21,18 @@ class Solution {
         $outputLength = 0;
 
         for ($digitsI = 0; $digitsI < strlen($digits); $digitsI++) {
-            $currChars = $numChars[substr($digits, $digitsI, 1)];
+            $currChars = $numChars[$digits[$digitsI]];
 
-            if (count($output) < 1) {
+            if (empty($output)) {
                 foreach ($currChars as $currCharsI => $char) {
                     $output[$currCharsI] = $char;
                 }
             } else {
                 $outputLength = count($output);
 
-                foreach ($currCharsI = count($currChars) - 1; $currChars >= 0; $currCharsI--) {
-                    for ($output as $outputI => $str) {
-                        $output[$outputI + $currCharsI * $outputLength] = $str + $currChars[$currCharsI];
+                for ($currCharsI = count($currChars) - 1; $currCharsI >= 0; $currCharsI--) {
+                    for ($outputI = 0; $outputI < $outputLength; $outputI++) {
+                        $output[$outputI + $currCharsI * $outputLength] = $output[$outputI] . $currChars[$currCharsI];
                     }
                 }
             }
