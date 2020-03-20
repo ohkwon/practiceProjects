@@ -17,29 +17,24 @@ class Solution {
             $clearX = false;
 
             foreach ($row as $x => $val) {
-                print_r('x: ' . $x . ' y: ' . $y . ' val: ' . $val);
                 if ($val == 'clear') {
-                    print_r('clearX: ' . ($clearX ? 1 : 0));
                     if (! $clearX) {
-                        for ($subI = 0; $subI < $matrix[$y].length; $subI++) {
+                        for ($subI = 0; $subI < count($matrix[$y]); $subI++) {
                             if ($matrix[$y][$subI] != 'clear') {
                                 $matrix[$y][$subI] = 0;
-                                print_r('1 to 0 x: ' . $subI . ' y: ' . $y);
                             }
                         }
 
                         $clearX = true;
                     }
 
-                    for ($subI = 0; $subI < $matrix.length; $subI++) {
+                    for ($subI = 0; $subI < count($matrix); $subI++) {
                         if ($matrix[$subI][$x] != 'clear') {
                             $matrix[$subI][$x] = 0;
-                            print_r('1 to 0 x: ' . $x . ' y: ' . $subI);
                         }
                     }
 
                     $matrix[$y][$x] = 0;
-                    print_r('clear to 0 x: ' . $x . ' y: ' . $y);
                 }
             }
         }
