@@ -13,6 +13,49 @@ function quickSort(arr, begI, endI) {
         return arr;
     }
 
+    var divReturn = div(arr, begI, endI);
+    arr           = divReturn.arr;
+
+    if (divReturn.midI - 1 > begI) {
+        arr = quickSort(arr, begI, divReturn.midI - 1);
+    }
+
+    if (divReturn.midI + 1 < endI) {
+        arr = quickSort(arr, divReturn.midI, endI);
+    }
+
+    return arr;
+}
+
+function div(arr, begI, endI) {
+    var piv = arr[parseInt((begI + endI) / 2)];
+
+    while (begI <= endI) {
+        while (arr[begI] < piv) {
+            begI++;
+        }
+
+        while (arr[endI] > piv) {
+            endI--;
+        }
+
+        if (begI <= endI) {
+            var begVal = arr[begI];
+            arr[begI]  = arr[endI];
+            arr[endI]  = begVal;
+            begI++;
+            endI--;
+        }
+    }
+
+    return {arr: arr, midI: begI};
+}
+
+function quickSortOld(arr, begI, endI) {
+    if (begI >= endI) {
+        return arr;
+    }
+
     var lSort = [];
     var rSort = [arr[begI]];
     var mid   = begI;
