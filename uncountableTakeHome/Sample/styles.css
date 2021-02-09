@@ -1,0 +1,93 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+.hidden {
+    display: none;
+}
+
+.error {
+    color: red;
+    font-style: italic;
+    font-size: 0.8rem;
+    margin-top: 0;
+}
+
+#container {
+    display: flex;
+    flex-direction: row;
+}
+
+/* form styling */
+form {
+    display: flex;
+    flex-direction: row;
+    padding: 20px 5px;
+}
+
+form label {
+    margin-right: 5px;
+}
+
+form div {
+    margin-right: 15px;
+}
+
+/* plot styling */
+svg {
+    padding: 20px;
+    border: black 2px solid;
+}
+
+#title {
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.hoverText {
+    z-index: 1;
+}
+
+/* experiment styling */
+#expContainer {
+    position: relative;
+    margin-left: 10px;
+    height: 620px;
+    overflow: scroll;
+    padding: 10px;
+    border: 2px black solid;
+}
+
+#expTitle {
+    margin-top: 10px;
+}
+
+#experiment p {
+    margin: 2px 10px;
+}
+
+#deselect {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+}
+
+/* legend styling */
+#legend {
+    display: flex;
+    flex-direction: row;
+    margin-left: 5px;
+}
+
+.legendValue {
+    display: flex;
+    flex-direction: row;
+}
+
+.colorIdentifier {
+    width: 10px;
+    height: 10px;
+    margin-top: 18px;
+    margin-right: 5px;
+    margin-left: 20px;
+}

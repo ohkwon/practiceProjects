@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Uncountable Take Home Assessment</title>
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <form action="index.html" method="get" id="form" novalidate>
+        <label for="input">Input:</label>
+        <div>
+            <select name="input" id="input">
+                <option value="" disabled selected>Select an input</option>
+                <option value="polymer">Polymer</option>
+                <option value="carbon">Carbon Black</option>
+                <option value="silica">Silica Filler</option>
+                <option value="plasticizer">Plasticizer</option>
+                <option value="antioxidant">Antioxidant</option>
+                <option value="pigment">Coloring Pigment</option>
+                <option value="co_agent">Co-Agent</option>
+                <option value="curing_agent">Curing Agent</option>
+                <option value="oven_temp">Oven Temperature</option>
+            </select>
+            <p id="inputError" class="error hidden">Please select an input</p>
+        </div>
+
+        <label for="output">Output:</label>
+        <div>
+            <select name="output" id="output">
+                <option value="" disabled selected>Select an output</option>
+                <option value="viscosity">Viscosity</option>
+                <option value="cure_time">Cure Time</option>
+                <option value="elongation">Elongation</option>
+                <option value="tensile">Tensile Strength</option>
+                <option value="compression">Compression Set</option>
+            </select>
+            <p id="outputError" class="error hidden">Please select an output</p>
+        </div>
+
+        <button type="button" onclick="validateForm()">Show Plot</button>
+    </form>
+
+    <div id="container">
+        <div id="plotContainer">
+            <svg id="plot" width="1000" height="600"></svg>
+            <div id="legend" class="hidden"></div>
+        </div>
+        <div id="expContainer" class="hidden">
+            <button type="button" id="deselect" onclick="deselectExp()">De-select</button>
+            <div id="experiment"></div>
+        </div>
+    </div>
+    <script src="script.js" type="text/javascript"></script>
+</body>

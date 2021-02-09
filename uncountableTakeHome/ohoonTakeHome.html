@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Uncountable Take Home</title>
+    <!-- load in JSON -->
+    <script type="text/javascript" src="uncountableDataset.json"></script>
+    <style>
+      .row {width: 100%; margin: auto;}
+      button {width: 100px; margin: 0 10px;}
+      label {margin-right: 15px;}
+    </style>
+  </head>
+  <body>
+    <div id="container" style="width: 100%;"></div>
+    <!-- load in react dependencies -->
+    <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+    <!-- JSX dependency -->
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <!-- anychart dependencies -->
+    <script src="https://cdn.anychart.com/releases/8.9.0/js/anychart-core.min.js"></script>
+    <script src="https://cdn.anychart.com/releases/8.9.0/js/anychart-scatter.min.js"></script>
+    <script src="https://cdn.anychart.com/releases/8.9.0/js/anychart-cartesian.min.js"></script>
+    <script src="https://cdn.anychart.com/releases/8.9.0/js/anychart-table.min.js"></script>
+    <!-- driver script -->
+    <script type="text/babel">
+      var data = JSON.parse(uncountableDataset);
+      // have keys available for easier data processing
+      var inputKeys = [
+          "Polymer 1",
+          "Polymer 2",
+          "Polymer 3",
+          "Polymer 4",
+          "Carbon Black High Grade",
+          "Carbon Black Low Grade",
+          "Silica Filler 1",
+          "Silica Filler 2",
+          "Plasticizer 1",
+          "Plasticizer 2",
+          "Plasticizer 3",
+          "Antioxidant",
+          "Coloring Pigment",
+          "Co-Agent 1",
+          "Co-Agent 2",
+          "Co-Agent 3",
+          "Curing Agent 1",
+          "Curing Agent 2",
+          "Oven Temperature",
+        ];
+      var outputKeys = [
+          "Viscosity",
+          "Cure Time",
+          "Elongation",
+          "Tensile Strength",
+          "Compression Set"
+        ];
+      const TYPE_HISTOGRAM   = '1';
+      const TYPE_SCATTERPLOT = '2';
+      const TYPE_TABLE       = '3'
+
+      // attrs = {scatterX: x coordinate attribute, scatterY: y coordinate attribute}
+      function getScatterPlotData(attrs) {
+        const keys   = Object.keys(data);
+        var   output = [];
+
+        // iterate through data, construct array of hashes for scatter plot graph format
+        for (var i = 0; i < keys.length; i++) {
+          output[i] = {};
+
+          if (typeof data[keys[i]]['inputs'][attrs.scatterX] === 'undefined') {
+            output[i].x = data[keys[i]]['outputs'][attrs.scatterX];
+          } else {
+            output[i].x = data[keys[i]]['inputs'][attrs.scatterX];
+          }
+
+          if (typeof data[keys[i]]['inputs'][attrs.scatterY] === 'undefined') {
+            output[i].value = data[keys[i]]['outputs'][attrs.scatterY];
+          } else {
+            output[i].value = data[keys[i]]['inputs'][attrs.scatterY];
+          }
+        }
+
+        return output;
+      }
+
+      function getTableData() {
+        var output  = [];
+        const keys  = Object.keys(data);
+        const attrs = inputKeys.concat(outputKeys);
+        output[0]   = ['Experiment'].concat(attrs);
+
+        for (var i = 0; i < keys.length; i++) {
+          output[i + 1] = [keys[i]];
+
+          for (var l = 0; l < inputKeys.length; l++) {
+            output[i + 1].push(data[keys[i]]['inputs'][inputKeys[l]]);
+          }
+
+          for (var l = 0; l < outputKeys.length; l++) {
+            output[i + 1].push(data[keys[i]]['outputs'][outputKeys[l]]);
+          }
+        }
+
+        return output;
+      }
+
+      function getHistogramData(attr, range) {
+        var output = [];
+        var index  = 'inputs';
+        range      = cleanRangeInput(range);
+
+        if (! range) {
+          return output;
+        }
+
+        const keys = Object.keys(data);
+
+        if (typeof data[keys[0]]['inputs'][attr] === 'undefined') {
+          index = 'outputs';
+        }
+
+        // iterate and sort resulting values into their respective ranges
+        for (var i = 0; i < keys.length; i++) {
+          for (var l = 1; l < range.length; l++) { // could improve performance here with a more optimized search algorithm
+            if (data[keys[i]][index][attr] >= range[l - 1] && data[keys[i]][index][attr] < range[l]) {
+              if (typeof output[l - 1] === 'undefined') {
+                output[l - 1] = [range[l - 1] + ' - ' + range[l], 1];
+              } else {
+                output[l - 1][1]++;
+              }
+
+              break;
+            }            
+          }
+        }
+
+        return output;
+      }
+
+      // cleans range input for histogram for only numerical characters and commas, sorts the resulting array, does not accept negative numbers
+      function cleanRangeInput(range) {
+        range = range.replaceAll(/[^0-9,]/g, '');
+        range = range.replace(/,+/g, ',')
+        range = range.replace(/^,+/g, '');
+        range = range.replace(/,+$/g, '');
+        range = range.split(',');
+        // does not handle user error in multiple commas in a row however
+
+        if (range.length < 2) {
+          return false;
+        }
+
+        range.sort(function(a, b){return a - b})
+
+        return range;
+      }
+
+      // main driving react component, parent with all states
+      class Visualization extends React.Component {
+        constructor(props) {
+          super(props);
+
+          this.state = {
+              type: null,
+              checked: {},
+              range: '',
+            };
+
+          this.handleButtonClick = this.handleButtonClick.bind(this);
+          this.handleValueChange = this.handleValueChange.bind(this);
+        }
+
+        handleButtonClick(event) {
+          // clear chart if change type changed and chart exists
+          if (document.getElementById('chart') && event.target.name === 'type' && event.target.value != this.state.type) {
+            document.getElementById('chart').innerHTML = '';
+          }
+
+          this.setState({[event.target.name] : event.target.value});
+        }
+
+        handleValueChange(name, value) {
+          this.setState({[name] : value});
+          var thisObj = this;
+        }
+
+        render() {
+          return ( 
+            <React.Fragment>
+              <div className="row">
+                <h1>Uncountable Data Set</h1>
+                <h3>Choose your graph type</h3>
+              </div>
+              <div className="row" style={{marginBottom: '10px'}}>
+                <button className="button" type="button" name="type" value={TYPE_HISTOGRAM} onClick={this.handleButtonClick}>Histogram</button>
+                <button className="button" type="button" name="type" value={TYPE_SCATTERPLOT} onClick={this.handleButtonClick}>Scatter Plot</button>
+                <button className="button" type="button" name="type" value={TYPE_TABLE} onClick={this.handleButtonClick}>Table</button>
+              </div>
+              <Chart type={this.state.type} checked={this.state.checked} range={this.state.range} handleValueChange={this.handleValueChange}/>
+            </React.Fragment>
+          );
+        }
+      }
+
+      class Chart extends React.Component {
+        constructor(props) {
+          super(props);
+          this.draw               = this.draw.bind(this);
+          this.handleSelectChange = this.handleSelectChange.bind(this);
+          this.handleInputChange  = this.handleInputChange.bind(this);
+        }
+
+        draw() {
+          document.getElementById('chart').innerHTML = '';
+
+          switch (this.props.type) {
+            case TYPE_HISTOGRAM:
+              if (typeof this.props.checked.histogram === 'undefined') {
+                return;
+              }
+
+              var chart  = anychart.column();
+              var series = chart.column(getHistogramData(this.props.checked.histogram, this.props.range));
+              chart.barGroupsPadding(0);
+              break;
+            case TYPE_SCATTERPLOT:
+              if (typeof this.props.checked.scatterX === 'undefined' || typeof this.props.checked.scatterY === 'undefined') {
+                return;
+              }
+
+              var chart = anychart.scatter();
+              chart.title("ScatterPlot: " + this.props.checked.scatterX + " and " + this.props.checked.scatterY);
+              chart.marker(getScatterPlotData(this.props.checked));
+              chart.xGrid(true);
+              chart.yGrid(true);
+              chart.xMinorGrid(true);
+              chart.yMinorGrid(true);
+              break;
+            case TYPE_TABLE:
+              var chart = anychart.standalones.table();
+              chart.contents(getTableData());
+              break;
+            default:
+              return;
+          }
+
+          chart.container("chart");
+          chart.draw();
+        }
+
+        handleSelectChange(event) {
+          const name  = event.target.name;
+          var   value = event.target.value;
+
+          // messy but quick way to handle setting attribute to null
+          if (value === 'Select attribute') {
+            value = null;
+          }
+
+          // this logic is for disabling/"un-"disabling the select option to avoid a scatter plot with the same attribute on both x and y axis
+          if (name === 'scatterX' || name === 'scatterY') {
+            if (name === 'scatterX') {
+              var target = document.getElementById('scatterY');
+            } else {
+              var target = document.getElementById('scatterX');
+            }
+
+            if (target.querySelector('option[value="' + this.props.checked[name] + '"]') && typeof this.props.checked[name] !== 'undefined' && this.props.checked[name] !== value) {
+              target.querySelector('option[value="' + this.props.checked[name] + '"]').removeAttribute('disabled');
+            }
+
+            if (value) {
+              target.querySelector('option[value="' + value + '"]').setAttribute('disabled', 'true');
+            }
+          }
+
+          // modify existing property hash to avoid deleting any other indices in this hash
+          var valueHash   = this.props.checked;
+          valueHash[name] = value;
+          this.props.handleValueChange('checked', valueHash);
+        }
+
+        handleInputChange(event) {
+          this.props.handleValueChange(event.target.name, event.target.value);
+        }
+
+        render() {
+          var output     = null;
+          var chartStyle = {};
+
+          // render only if a graph type is selected
+          if (this.props.type) {
+            // change chart div size to suit the corresponding graph
+            if (this.props.type == TYPE_TABLE) {
+              chartStyle.width  = '2000px';
+              chartStyle.height = '1000px';
+            } else {
+              chartStyle.height = '500px';
+            }
+
+            // construct base set of options for all selects
+            var keys    = inputKeys.concat(outputKeys);
+            var options = keys.map((attr) => 
+              <option value={attr} key={attr}>{attr}</option>
+            );
+            var selects = null;
+
+            // conditional select options fields, depending on the type of graph
+            switch (this.props.type) {
+              case TYPE_HISTOGRAM:
+                selects = (
+                  <React.Fragment>
+                    <div className="row">
+                      <label htmlFor="histogram">Attribute for Histogram</label>
+                      <select name="histogram" onChange={this.handleSelectChange}>
+                        <option>Select attribute</option>
+                        {options}
+                      </select>
+                    </div>
+                    <div className="row">
+                      <label htmlFor="range">Histogram ranges, comma separated</label>
+                      <input type="text" name="range" value={this.props.range} onChange={this.handleInputChange} />
+                    </div>
+                  </React.Fragment>
+                );
+                break;
+              case TYPE_SCATTERPLOT:
+                selects = (
+                  <React.Fragment>
+                    <div className="row">
+                      <label htmlFor="scatterX">X attribute for Scatter Plot</label>
+                      <select name="scatterX" id="scatterX" onChange={this.handleSelectChange}>
+                        <option>Select attribute</option>
+                        {options}
+                      </select>
+                    </div>
+                    <div className="row">
+                      <label htmlFor="scatterY">Y attribute for Scatter Plot</label>
+                      <select name="scatterY" id="scatterY" onChange={this.handleSelectChange}>
+                        <option>Select attribute</option>
+                        {options}
+                      </select>
+                    </div>
+                  </React.Fragment>
+                );
+                break;
+            }
+
+            output = (
+              <React.Fragment>
+                <div className="row">
+                  {selects}
+                </div>
+                <div className="row">
+                  <button type="button" onClick={this.draw}>Draw</button>
+                </div>
+                <div id="chart" style={chartStyle}></div>
+              </React.Fragment>
+            );
+          }
+
+          return output;
+        }
+      }
+
+      ReactDOM.render(React.createElement(Visualization), document.getElementById('container'));
+    </script>
+  </body>
+</html>
