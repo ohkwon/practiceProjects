@@ -1,9 +1,38 @@
 class Node {
     constructor (val) {
-        this.val   = val;
-        this.left  = null;
-        this.right = null;
+        this.val    = val;
+        this.left   = null;
+        this.right  = null;
+        this.height = 1;
     }
+}
+
+function getHeight(node) {
+    if (! node) {
+        return 0;
+    }
+    
+    return node.height + max(getHeight(node.right), getHeight(node.left));
+}
+
+function getBal(node) {
+    return getHeight(node.right) - getHeight(node.left);
+}
+
+function max(a, b) {
+    if (a > b) {
+        return a;
+    }
+
+    return b;
+}
+
+function min(a, b) {
+    if (a < b) {
+        return a;
+    }
+
+    return b;
 }
 
 class SearchTree {
@@ -72,16 +101,20 @@ class SearchTree {
     }
 }
 
-var test = [15, 6, 23,5,2,13,20,18,7,14,27,8,19,17];
+var test = [15, 6, 23,5,2,13,20,18,7,14,27,8,19,17, 100];
 var tree = new SearchTree();
 
 for (var i in test) {
     tree.addNode(test[i]);
 }
 
-test = [20, 15, 4, 21, 17];
+console.log(getHeight(tree.head));
+console.log(getBal(tree.head));
+console.log(tree);
 
-for (var i in test) {
-    console.log('Searching for ' + test[i]);
-    console.log(tree.search(test[i]));
-}
+// test = [20, 15, 4, 21, 17];
+
+// for (var i in test) {
+//     console.log('Searching for ' + test[i]);
+//     console.log(tree.search(test[i]));
+// }
